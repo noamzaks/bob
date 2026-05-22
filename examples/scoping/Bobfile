@@ -1,0 +1,14 @@
+from bob.prelude import *
+
+demo = rule("echo $dummy > $out")
+dummy = demo["dummy"]
+dummy.provide(["amazing"])
+
+with dummy.extend(["provided"]):
+    demo("provided")
+
+demo("after")
+
+subbob("evil", demo=demo)
+
+demo("afterevil")

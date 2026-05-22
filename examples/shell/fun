@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo amazing > $1
+echo Hola!
+echo "\tYo"

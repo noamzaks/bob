@@ -1,0 +1,4 @@
+from bob.prelude import *
+
+# rule("echo $something > $out").build("dummy", something="; false")
+rule("$uninitialized").build("dummy")

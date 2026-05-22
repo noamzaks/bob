@@ -1,0 +1,4 @@
+[
+    { "name": "amazing", "cflags": ["-DAMAZING"] },
+    { "name": "awesome", "cflags": ["-DAWESOME"] }
+]

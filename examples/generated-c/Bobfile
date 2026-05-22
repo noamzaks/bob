@@ -1,0 +1,21 @@
+import bob.plugins.c as c
+from bob.prelude import *
+
+c.toolchain(ccbin=["clang"], arbin=["llvm-ar"])
+
+header = generate_rule(
+    "sleep 1 && echo '#pragma once' && echo '#define GENERATED_VALUE 43'"
+).build("generated.h")
+
+with (
+    c.cflags.extend([f"-I{header.path}"]),
+    c.cc.extend(order_only=[header]),
+):
+    c.binary("wow", sources=["wow.c"])
+
+src = generate_rule(
+    "echo '#include <stdio.h>' && echo 'int main() { puts(\"Hello World!\"); return 0; }'"
+).build("generated.c")
+
+c.binary("hmm", sources=[src])
+c.binary("another", sources=[src])

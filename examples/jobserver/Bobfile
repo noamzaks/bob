@@ -1,0 +1,5 @@
+from bob.prelude import *
+
+rule("make all", always=True, restat=True, pool="console").build(
+    implicit_outputs=["a", "b"]
+)

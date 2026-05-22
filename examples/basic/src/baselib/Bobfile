@@ -1,0 +1,6 @@
+import bob.plugins.c as c
+from bob.prelude import *
+
+baselib = c.Bundle(cflags=[f"-I{curdir()}"])
+
+export(baselib=baselib)

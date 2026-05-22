@@ -1,0 +1,13 @@
+from typing import List
+
+from bob.prelude import *
+
+rule = rule("echo hi > $out")
+
+for target in glob("*"):
+    foo(str(target))
+
+
+def bar(targets: List[str]):
+    for target in targets:
+        rule(target + "-target.txt")

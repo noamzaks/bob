@@ -1,0 +1,11 @@
+import bob.plugins.c as c
+from bob.prelude import *
+
+c.toolchain("clang", "clang")
+
+include("inc")
+
+with c.add_include_path("inner"):
+    c.binary("innerfun", ["fun.c"])
+
+c.binary("outerfun", ["fun.c"])

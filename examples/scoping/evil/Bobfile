@@ -1,0 +1,8 @@
+from bob.prelude import *
+
+demo = use("demo")
+dummy = demo["dummy"]
+
+dummy.extend(["muhahahaha"])
+
+demo("in-evil")

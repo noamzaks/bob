@@ -1,0 +1,6 @@
+from pathlib import Path
+
+import bob.plugins.c as c
+from bob.prelude import *
+
+c.add_include_path(Path("another"))
