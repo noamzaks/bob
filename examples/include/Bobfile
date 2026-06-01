@@ -1,0 +1,18 @@
+from bob.prelude import *
+
+rule("echo hi > $out").build("dummy.txt")
+
+targets = []
+
+
+def foo(name: str):
+    targets.append(name)
+
+
+include("targets")
+
+# include("flat", change_source_dir=False)
+
+# subbob("flat-subbob/Bobfile", change_build_dir=False)
+
+bar(targets)

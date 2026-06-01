@@ -1,0 +1,4 @@
+from bob.prelude import *
+
+rule("cp $in $out").build("funny", inputs=[builddir() / "something-in-the-future"])
+rule("echo hi > $out").build("something-in-the-future")

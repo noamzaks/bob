@@ -1,0 +1,33 @@
+[project]
+name = "bob"
+version = "1.0.0"
+description = "The ergonomic Ninja-based build system."
+readme = "README.md"
+authors = [{ name = "Noam Zaks", email = "noam@noamzaks.com" }]
+requires-python = ">=3.10"
+dependencies = ["ninja>=1.13.0", "rich-click>=1.9.7"]
+
+[project.scripts]
+bob = "bob:main"
+
+[build-system]
+requires = ["uv_build>=0.8.0,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.ruff.lint]
+ignore = ["F403", "F405"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.0",
+    "pytest>=9.0.3",
+    "pytest-xdist>=3.8.0",
+    "ruff>=0.15.14",
+    "ty>=0.0.40",
+]
+
+[tool.ruff]
+exclude = ["src/bob/external/**"]
+
+[tool.ty.src]
+exclude = ["src/bob/external/**"]

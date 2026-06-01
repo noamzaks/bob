@@ -1,0 +1,3 @@
+from bob.prelude import *
+
+rule("echo another-flat > $out").build("flat-dummy-two")

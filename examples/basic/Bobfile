@@ -1,0 +1,40 @@
+import json
+from pathlib import Path
+
+import bob.plugins.c as c
+from bob.prelude import *
+
+bob_required_version("1.0.0")
+
+src = Path("src")
+
+c.toolchain(ccbin=["clang"], arbin=["llvm-ar"])
+
+baselib = subbob("src/baselib").use("baselib", type=c.Bundle)
+mylib = subbob("src/mylib", provides={"baselib": baselib}).use("mylib", type=c.Bundle)
+
+
+if config("DEBUG") == "y":
+    c.cflags.extend(["-DDEBUG"])
+
+c.binary("mybin", sources=[src / "my_main.c"], bundles=[mylib])
+c.binary(
+    "otherbin",
+    sources=[src / "my_other_main.c", src / "my_other_asm.S"],
+    bundles=[mylib],
+)
+
+targets = json.loads(read("targets.json"))
+
+for example in glob("*.c", path=src / "modules"):
+    for target in targets:
+        with c.cflags.extend(target["cflags"]):
+            c.binary(
+                Path("modules") / target["name"] / f"{example.name.removesuffix('.c')}",
+                sources=[example],
+            )
+
+echohi = rule("echo hi > $out")
+echohi("hi.txt")
+
+rule("sleep 1; echo $$MAKEFLAGS > $out").build("makeflags")

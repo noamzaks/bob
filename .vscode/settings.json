@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "Bobfile": "python"
+    },
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.unusedImports": "always",
+        "source.organizeImports.ruff": "always"
+    }
+}

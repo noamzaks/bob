@@ -1,0 +1,18 @@
+import bob.plugins.c as c
+from bob.prelude import *
+
+c.toolchain(ccbin=["clang"], arbin=["llvm-ar"])
+
+my_cc = rule(
+    "$ccbin -c overridden.c -o $out; echo hi > $out.hi",
+    description="CC",
+    implicit_outputs=["$out.hi"],
+)
+with c.cc_provider.provide(my_cc):
+    overridden = c.binary("overridden", sources=["dummy.c"])
+
+rule("cp $in $out", description="CP").build(
+    "wow", inputs=[c.objects[0].parent / (c.objects[0].name + ".hi")]
+)
+
+c.binary("dummy", sources=["dummy.c"])

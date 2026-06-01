@@ -1,0 +1,10 @@
+import bob.plugins.c as c
+from bob.prelude import *
+
+baselib = use("baselib", type=c.Bundle)
+
+mylib = c.static_library_bundle(
+    "mylib", sources=["mylib.c"], public_cflags=[f"-I{curdir()}"], bundles=[baselib]
+)
+
+export(mylib=mylib)

@@ -1,0 +1,11 @@
+from bob.prelude import *
+
+magic = shell("cat magic")
+wow = rule("echo $magic > $out", description="MAGIC").build("wow", magic=magic)
+rule("cp $in $out", description="CP").build("wow2", inputs=[wow])
+
+generate_rule("cat ninja_magic").build("ninja_magic_contents")
+generate_rule("git rev-parse HEAD").build("git-head")
+
+rule("./fun $out", description="FUN").build("demo")
+rule("./bad $out", description="BAD").build("demo2")
