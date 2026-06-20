@@ -15,6 +15,7 @@ class Rule:
         restat=False,
         generator=False,
         pool: None | str = None,
+        compile_command: None | str = None,
         variables: None | dict[str, str] = None,
     ):
         context = Context.current()
@@ -35,12 +36,16 @@ class Rule:
         description_template = (
             Template(description) if description is not None else None
         )
+        compile_command_template = (
+            Template(compile_command) if compile_command is not None else None
+        )
 
         variable_names: set[str] = set()
         for template_name, template in (
             ("command", command_template),
             ("depfile", depfile_template),
             ("description", description_template),
+            ("compile command", compile_command_template),
         ):
             if template is None:
                 continue
@@ -55,11 +60,13 @@ class Rule:
         self.depfile = Template(depfile) if depfile is not None else None
         self.variable_names = variable_names
         self.variables: dict[str, str] = {}
+        self.has_compile_command = compile_command is not None
 
         for key, value in variables.items():
             self[key].provide(value)
 
         assert context.writer is not None
+        assert context.compdb_writer is not None
         context.writer.rule(
             name=name,
             command=command,
@@ -71,6 +78,8 @@ class Rule:
             deps=deps,
         )
         context.writer.newline()
+        if compile_command is not None:
+            context.compdb_writer.rule(name=name, command=compile_command)
 
     def __getitem__(self, name: str) -> Variable:
         return Variable(name, self)
@@ -99,9 +108,12 @@ class Rule:
 
             context = Context.current()
 
+            resolved_outputs = [str(context.builddir / output) for output in outputs]
+
             assert context.writer is not None
+            assert context.compdb_writer is not None
             context.writer.build(
-                outputs=[str(context.builddir / output) for output in outputs],
+                outputs=resolved_outputs,
                 rule=self.name,
                 inputs=inputs,
                 implicit=implicit,
@@ -111,3 +123,8 @@ class Rule:
                 pool=pool,
                 dyndep=dyndep,
             )
+
+            if self.has_compile_command:
+                context.compdb_writer.build(
+                    outputs=resolved_outputs, rule=self.name, inputs=inputs
+                )
