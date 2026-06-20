@@ -1,8 +1,8 @@
 import subprocess
 from pathlib import Path
 
+from bob.commands.configure import configure
 from bob.constants import COMPDB_PATH, get_compdb_ninja_path
-from bob.core.context import Context
 
 
 def compdb(
@@ -10,8 +10,7 @@ def compdb(
 ) -> subprocess.Popen:
     build_compdb_path = builddir / COMPDB_PATH
 
-    with Context(builddir) as context:
-        context.evaluate(bobfile)
+    configure(builddir, bobfile, lazy=True)
 
     p = subprocess.Popen(
         f"ninja -f {get_compdb_ninja_path(builddir)} -t compdb > {build_compdb_path}",

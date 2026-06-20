@@ -30,6 +30,30 @@ def cli() -> None:
     default=Path("Bobfile"),
     show_default=True,
 )
+def configure(**kwargs) -> None:
+    """Generate the Ninja file to build the project."""
+
+    from bob.commands.configure import configure
+
+    configure(**kwargs)
+
+
+@cli.command()
+@click.option(
+    "--builddir",
+    help="The directory to put the Bob outputs in.",
+    type=click.Path(file_okay=False, path_type=Path),
+    default=DEFAULT_BUILDDIR,
+    show_default=True,
+)
+@click.option(
+    "-f",
+    "bobfile",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="The input Bobfile",
+    default=Path("Bobfile"),
+    show_default=True,
+)
 @click.option("--clean", "do_clean", is_flag=True, help="Clean before building")
 @click.option(
     "--no-compdb", is_flag=True, help="Don't create a compilation DB for this build."

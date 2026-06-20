@@ -5,3 +5,13 @@ rule bob-1
   command = echo hi > $out
 
 build build/hi: bob-1
+rule configure-bob-2
+  command = FORCE_COLOR=1 $bobbin configure -f $bobfile
+  description = CONFIGURE $out
+  generator = 1
+  pool = console
+
+build build/.bob/build.ninja: configure-bob-2 | $
+    $root/tests/cases/basic.bob
+  bobbin = $root/.venv/bin/python -m bob
+  bobfile = $root/tests/cases/basic.bob

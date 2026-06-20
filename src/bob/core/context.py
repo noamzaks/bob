@@ -1,4 +1,5 @@
 import runpy
+import sys
 from pathlib import Path
 from typing import Any, Self
 
@@ -18,7 +19,9 @@ class Context:
         self.builddir = builddir
         self.writer: None | Writer = None
         self.compdb_writer: None | Writer = None
+        self.configure_implicit_dependencies: set[Path] = set()
         self.variables: dict[str, Any] = {}
+        self.bobfile: None | Path = None
 
     def __enter__(self) -> Self:
         assert Context._CURRENT is None
@@ -40,6 +43,22 @@ class Context:
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
+        from bob.api.rule import Rule
+
+        Rule(
+            "FORCE_COLOR=1 $bobbin configure -f $bobfile",
+            description="CONFIGURE",
+            generator=True,
+            pool="console",
+        ).build(
+            str(get_build_ninja_path(self.builddir).relative_to(self.builddir)),
+            implicit=list(sorted(str(d) for d in self.configure_implicit_dependencies)),
+            variables={
+                "bobbin": f"{sys.executable} -m bob",
+                "bobfile": str(self.bobfile),
+            },
+        )
+
         assert self.writer is not None
         assert self.compdb_writer is not None
         self.writer.close()
@@ -61,4 +80,8 @@ class Context:
         return result
 
     def evaluate(self, bobfile: Path) -> None:
+        if self.bobfile is None:
+            self.bobfile = bobfile
+
+        self.configure_implicit_dependencies.add(bobfile)
         runpy.run_path(str(bobfile))

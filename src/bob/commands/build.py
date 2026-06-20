@@ -4,8 +4,8 @@ from pathlib import Path
 
 from bob.commands.clean import clean
 from bob.commands.compdb import compdb
+from bob.commands.configure import configure
 from bob.constants import get_build_ninja_path
-from bob.core.context import Context
 
 
 def run_ninja(builddir: Path) -> None:
@@ -24,8 +24,7 @@ def build(
     if do_clean:
         clean(builddir)
 
-    with Context(builddir) as context:
-        context.evaluate(bobfile)
+    configure(builddir, bobfile, lazy=True)
 
     p: subprocess.Popen | None
     if not no_compdb:

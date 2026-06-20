@@ -19,3 +19,13 @@ build build/bye-another: bob-2
   something = bye
 build build/escape: bob-1
   something = $$money
+rule configure-bob-3
+  command = FORCE_COLOR=1 $bobbin configure -f $bobfile
+  description = CONFIGURE $out
+  generator = 1
+  pool = console
+
+build build/.bob/build.ninja: configure-bob-3 | $
+    $root/tests/cases/variables.bob
+  bobbin = $root/.venv/bin/python -m bob
+  bobfile = $root/tests/cases/variables.bob
