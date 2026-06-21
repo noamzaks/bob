@@ -7,16 +7,19 @@ import rich_click as click
 from bob.constants import (
     BOB_BUILDDIR_SUBDIRECTORY,
     DEFAULT_BUILDDIR,
+    get_build_ninja_path,
     get_used_configs_path,
 )
 
 
 def complete_targets(ctx: click.Context, param: click.Parameter, incomplete: str):
+    builddir: Path = ctx.params.get("builddir", DEFAULT_BUILDDIR)
+
     p = subprocess.run(
         [
             "ninja",
             "-f",
-            DEFAULT_BUILDDIR / BOB_BUILDDIR_SUBDIRECTORY / "build.ninja",
+            get_build_ninja_path(builddir),
             "-t",
             "targets",
             "all",
@@ -36,7 +39,9 @@ def complete_targets(ctx: click.Context, param: click.Parameter, incomplete: str
 
 
 def complete_configs(ctx: click.Context, param: click.Parameter, incomplete: str):
-    used_configs_path = get_used_configs_path(DEFAULT_BUILDDIR)
+    builddir: Path = ctx.params.get("builddir", DEFAULT_BUILDDIR)
+
+    used_configs_path = get_used_configs_path(builddir)
 
     if not used_configs_path.is_file():
         return []
