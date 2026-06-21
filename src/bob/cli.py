@@ -1,9 +1,34 @@
 import os
+import subprocess
 from pathlib import Path
 
 import rich_click as click
 
-from bob.constants import DEFAULT_BUILDDIR
+from bob.constants import BOB_BUILDDIR_SUBDIRECTORY, DEFAULT_BUILDDIR
+
+
+def complete_targets(ctx, param, incomplete: str):
+    p = subprocess.run(
+        [
+            "ninja",
+            "-f",
+            DEFAULT_BUILDDIR / BOB_BUILDDIR_SUBDIRECTORY / "build.ninja",
+            "-t",
+            "targets",
+            "all",
+        ],
+        capture_output=True,
+    )
+
+    if p.returncode != 0:
+        return []
+
+    return [
+        line.partition(b":")[0].decode()
+        for line in p.stdout.splitlines()
+        if line.startswith(incomplete.encode())
+        and f"/{BOB_BUILDDIR_SUBDIRECTORY}/".encode() not in line
+    ]
 
 
 @click.group
@@ -63,6 +88,7 @@ def configure(**kwargs) -> None:
     is_flag=True,
     help="Create a symlink to the compilation DB in the current directory",
 )
+@click.argument("targets", shell_complete=complete_targets, nargs=-1)
 def build(**kwargs) -> None:
     """Build the given Bob project."""
 
