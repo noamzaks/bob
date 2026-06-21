@@ -1,4 +1,3 @@
-import os
 import subprocess
 from pathlib import Path
 
@@ -15,11 +14,11 @@ def run_ninja(builddir: Path) -> None:
         str(get_build_ninja_path(builddir)),
     ]
 
-    os.execvp(arguments[0], arguments)
+    subprocess.run(arguments, check=True)
 
 
 def build(
-    builddir: Path, bobfile: Path, do_clean: bool, no_compdb: bool, symlink_compdb: bool
+    builddir: Path, bobfile: Path, do_clean=False, no_compdb=False, symlink_compdb=False
 ) -> None:
     if do_clean:
         clean(builddir)

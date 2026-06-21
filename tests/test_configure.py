@@ -1,40 +1,13 @@
-import os
-import time
-from contextlib import contextmanager
 from pathlib import Path
 from textwrap import dedent
-from typing import Callable, Generator
 
 import pytest
-from utilities import ROOT
+from utilities import ROOT, assert_modification_time_does_not_change
 
 from bob.commands.configure import configure
 from bob.constants import get_build_ninja_path
-from bob.core.context import Context
-from bob.prelude import Rule
 
 CASES_PATH = ROOT / "tests" / "cases"
-
-
-@pytest.fixture()
-def builddir() -> Path:
-    return Path("build")
-
-
-@pytest.fixture()
-def bobfile(tmp_path: Path) -> Path:
-    return tmp_path / "Bobfile"
-
-
-@pytest.fixture(autouse=True)
-def chdir_tmp(tmp_path: Path) -> None:
-    os.chdir(tmp_path)
-
-
-@pytest.fixture()
-def context(chdir_tmp, builddir: Path) -> Generator[Context, None, None]:
-    with Context(builddir) as context:
-        yield context
 
 
 @pytest.mark.parametrize(
@@ -76,27 +49,6 @@ def test_ninja_removed_when_configure_fails(bobfile: Path, builddir: Path) -> No
     assert not get_build_ninja_path(builddir).exists()
 
 
-@contextmanager
-def assert_modification_time_change(
-    path: Path, checker: Callable[[float, float], bool]
-) -> Generator[None, None, None]:
-    before = path.stat().st_mtime
-
-    # Make sure we give the filesystem the opportunity to change the mtime.
-    time.sleep(0.1)
-
-    yield
-
-    after = path.stat().st_mtime
-    assert checker(before, after)
-
-
-@contextmanager
-def assert_modification_time_does_not_change(path: Path) -> Generator[None, None, None]:
-    with assert_modification_time_change(path, lambda before, after: before == after):
-        yield
-
-
 def test_configure_lazy(bobfile: Path, builddir: Path) -> None:
     bobfile.write_text(
         dedent("""
@@ -113,20 +65,3 @@ def test_configure_lazy(bobfile: Path, builddir: Path) -> None:
         assert_modification_time_does_not_change(get_build_ninja_path(builddir)),
     ):
         configure(builddir, bobfile, lazy=True)
-
-
-def test_rule_unused_variable_in_constructor(context: Context) -> None:
-    with pytest.raises(KeyError, match="dummy"):
-        Rule("echo hi > $out", variables={"dummy": "hi"})
-
-
-def test_rule_unused_variable_in_build(context: Context) -> None:
-    rule = Rule("echo hi > $out")
-    with pytest.raises(KeyError, match="dummy"):
-        rule.build("hi", variables={"dummy": "hi"})
-
-
-def test_rule_uninitialized_variable(context: Context) -> None:
-    rule = Rule("echo $something > $out")
-    with pytest.raises(ValueError, match='Variable "something" is uninitialized'):
-        rule.build("hi")

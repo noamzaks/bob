@@ -31,7 +31,7 @@ class RuleInput:
     def resolve(
         *values: Type,
         convert_strings_to_paths=True,
-        path_only=False,
+        path_only: Literal[False] = False,
         convert_to_string: Literal[False] = False,
         single: Literal[True] = True,
     ) -> Path | str: ...
@@ -41,7 +41,7 @@ class RuleInput:
     def resolve(
         *values: Type,
         convert_strings_to_paths=True,
-        path_only=False,
+        path_only: Literal[False] = False,
         convert_to_string: Literal[False] = False,
         single: Literal[False] = False,
     ) -> list[Path | str]: ...
@@ -51,7 +51,27 @@ class RuleInput:
     def resolve(
         *values: Type,
         convert_strings_to_paths=True,
-        path_only=False,
+        path_only: Literal[True] = True,
+        convert_to_string: Literal[False] = False,
+        single: Literal[True] = True,
+    ) -> Path: ...
+
+    @overload
+    @staticmethod
+    def resolve(
+        *values: Type,
+        convert_strings_to_paths=True,
+        path_only: Literal[True] = True,
+        convert_to_string: Literal[False] = False,
+        single: Literal[False] = False,
+    ) -> list[Path]: ...
+
+    @overload
+    @staticmethod
+    def resolve(
+        *values: Type,
+        convert_strings_to_paths=True,
+        path_only: Literal[False] = False,
         convert_to_string: Literal[True] = True,
         single: Literal[True] = True,
     ) -> str: ...
@@ -61,7 +81,7 @@ class RuleInput:
     def resolve(
         *values: Type,
         convert_strings_to_paths=True,
-        path_only=False,
+        path_only: Literal[False] = False,
         convert_to_string: Literal[True] = True,
         single: Literal[False] = False,
     ) -> list[str]: ...
@@ -73,7 +93,7 @@ class RuleInput:
         path_only=False,
         convert_to_string=False,
         single=True,
-    ) -> Path | str | list[str] | list[Path | str]:
+    ) -> Path | str | list[str] | list[Path] | list[Path | str]:
         result: list[Path | str] = []
 
         if single:
