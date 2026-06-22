@@ -6,6 +6,7 @@ from bob.api.rule import (
     Rule,
     RuleInput,
     phony,
+    shell,
     shell_output_rule,
 )
 from bob.api.scope import Scope, ScopeList
@@ -25,6 +26,7 @@ __all__ = [
     "glob",
     "config",
     "shell_output_rule",
+    "shell",
     "ScopedValue",
     "ScopedRule",
 ]

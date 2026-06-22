@@ -1,4 +1,6 @@
 import shlex
+import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from string import Template
@@ -8,6 +10,7 @@ from ninja.ninja_syntax import escape as ninja_escape
 
 from bob.api.scope import ScopeList
 from bob.api.variable import NINJA_PROVIDED_VARIABLES, Variable
+from bob.constants import BOB_BUILDDIR_SUBDIRECTORY
 from bob.core.context import Context
 
 
@@ -406,3 +409,42 @@ def shell_output_rule(
         always=True,
         single_input=single_input,
     )
+
+
+@overload
+def shell(command: str, text: Literal[True] = True, check=True) -> str: ...
+
+
+@overload
+def shell(command: str, text: Literal[False] = False, check=True) -> bytes: ...
+
+
+def shell(command: str, text=True, check=True) -> str | bytes:
+    context = Context.current()
+
+    shell_index = context.variables.get("shell_index", 1)
+    context.variables["shell_index"] = shell_index + 1
+
+    name = BOB_BUILDDIR_SUBDIRECTORY / f"bob-shell-output-{shell_index}"
+
+    generated = shell_output_rule(command).build(name)
+
+    context.configure_implicit_dependencies.add(generated.path)
+
+    p = subprocess.run(
+        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    if check and p.returncode != 0:
+        sys.stdout.buffer.write(p.stdout)
+        sys.stderr.buffer.write(p.stderr)
+        raise ValueError(f'"{command}" exited with return code {p.returncode}')
+
+    output = p.stdout
+    output_file = generated.path.resolve()
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_bytes(output)
+
+    if text:
+        output = output.decode()
+
+    return output
