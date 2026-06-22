@@ -10,6 +10,7 @@ rule bob-2
 
 build build/hi: bob-1
   something = hi
+build funny: phony build/hi
 build build/bye: bob-1
   something = bye
 build build/hi-again: bob-1
@@ -20,6 +21,10 @@ build build/bye-another: bob-2
   something = bye
 build build/escape: bob-1
   something = $$money
+build build/list: bob-1
+  something = hi yo build/hi funny
+build build/add-to-list: bob-1
+  something = more
 rule configure-bob-3
   command = FORCE_COLOR=1 $bobbin configure --use-current-configs -f $bobfile
   description = CONFIGURE $out

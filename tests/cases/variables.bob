@@ -1,9 +1,12 @@
+from pathlib import Path
+
 from bob.prelude import *
 
 rule = Rule("echo $something > $out", variables={"something": "hi"})
 another = Rule("echo $something $something > $out")
 
-rule.build("hi")
+hi = rule.build("hi")
+p = phony("funny", [hi])
 assert rule["something"].get() == "hi"
 
 with rule["something"].set("bye"):
@@ -25,3 +28,10 @@ with rule["something"].add(" hi"):
 with rule["something"].set("$money"):
     assert rule["something"].get() == "$money"
     rule.build("escape")
+
+with rule["something"].set(["hi", Path("yo"), hi, p]):
+    assert rule["something"].get() == ["hi", Path("yo"), hi, p]
+    rule.build("list")
+
+with rule["something"].set([]), rule["something"].add(["more"]):
+    rule.build("add-to-list")

@@ -35,16 +35,15 @@ class Variable:
         self.rules = rules
         self.name = name
 
-    def get(self) -> "RuleInput.Type":
+    def get(self) -> "RuleInput.Multiple":
         return self.rules[0].variables[self.name]
 
-    def set(self, value: str) -> Scope:
+    def set(self, value: "RuleInput.Multiple") -> Scope:
         return ScopeList(
             [DictionaryScope(rule.variables, {self.name: value}) for rule in self.rules]
         )
 
-    def add(self, value: "RuleInput.Type") -> Scope:
-        # TODO
+    def add(self, value: "RuleInput.Multiple") -> Scope:
         value = self.get() + value  # ty:ignore[unsupported-operator]
 
         return ScopeList(

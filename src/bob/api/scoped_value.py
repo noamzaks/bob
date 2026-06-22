@@ -44,7 +44,7 @@ class ScopedRule[OutputType](ScopedValue[Rule[OutputType]]):
         self.single_input = base.single_input
         self.single_output = base.single_output
         self.variable_names = base.variable_names
-        self.variables: dict[str, RuleInput.Type] = {}
+        self.variables: dict[str, RuleInput.Multiple] = {}
 
     def set(self, value: Rule[OutputType]) -> Scope:
         if value.single_input != self.single_input:
@@ -67,7 +67,7 @@ class ScopedRule[OutputType](ScopedValue[Rule[OutputType]]):
         implicit_outputs: None | list[str | Path] = None,
         pool: None | str = None,
         dyndep: None | str = None,
-        variables: None | dict[str, RuleInput.Type] = None,
+        variables: None | dict[str, RuleInput.Multiple] = None,
     ):
         assert self.value is not None
 

@@ -1,3 +1,4 @@
+import shlex
 from dataclasses import dataclass
 from pathlib import Path
 from string import Template
@@ -22,6 +23,7 @@ class PhonyTarget:
 
 class RuleInput:
     Type: TypeAlias = str | Path | FileTarget | PhonyTarget
+    Multiple: TypeAlias = Type | list[Type]
 
     def __init__(self):
         raise Exception("RuleInput is a utility namespace")
@@ -226,7 +228,7 @@ class Rule[OutputType]:
         self.command = command_template
         self.depfile = Template(depfile) if depfile is not None else None
         self.variable_names = variable_names
-        self.variables: dict[str, str] = {}
+        self.variables: dict[str, RuleInput.Multiple] = {}
         self.has_compile_command = compile_command is not None
         self.single_input = single_input
         self.single_output = single_output
@@ -267,7 +269,7 @@ class Rule[OutputType]:
         implicit_outputs: None | list[str | Path] = None,
         pool: None | str = None,
         dyndep: None | str = None,
-        variables: None | dict[str, RuleInput.Type] = None,
+        variables: None | dict[str, RuleInput.Multiple] = None,
     ) -> OutputType:
         if variables is None:
             variables = {}
@@ -278,16 +280,7 @@ class Rule[OutputType]:
         if self.single_input and (inputs is None or len(inputs) != 1):
             raise ValueError("Expected a single input!")
 
-        with ScopeList(
-            [
-                self[key].set(
-                    RuleInput.resolve(
-                        value, convert_strings_to_paths=False, convert_to_string=True
-                    )
-                )
-                for key, value in variables.items()
-            ]
-        ):
+        with ScopeList([self[key].set(value) for key, value in variables.items()]):
             for variable in self.variable_names:
                 if (
                     variable not in NINJA_PROVIDED_VARIABLES
@@ -300,7 +293,24 @@ class Rule[OutputType]:
             resolved_outputs = [context.builddir / output for output in outputs]
 
             resolved_variables = {
-                key: ninja_escape(value) for key, value in self.variables.items()
+                key: shlex.join(
+                    ninja_escape(
+                        RuleInput.resolve(
+                            v, convert_strings_to_paths=False, convert_to_string=True
+                        )
+                    )
+                    for v in value
+                )
+                if not isinstance(value, str)
+                and not isinstance(value, Path)
+                and not isinstance(value, FileTarget)
+                and not isinstance(value, PhonyTarget)
+                else ninja_escape(
+                    RuleInput.resolve(
+                        value, convert_strings_to_paths=False, convert_to_string=True
+                    )
+                )
+                for key, value in self.variables.items()
             }
 
             if self.always:
