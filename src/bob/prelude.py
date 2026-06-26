@@ -9,7 +9,7 @@ from bob.api.rule import (
     shell,
     shell_output_rule,
 )
-from bob.api.scope import Scope, ScopeList
+from bob.api.scope import Scope, ScopeList, plugin_scope
 from bob.api.scoped_value import ScopedRule, ScopedValue
 from bob.api.subproject import export, include, subbob, use
 from bob.api.variable import Variable
@@ -38,4 +38,5 @@ __all__ = [
     "subbob",
     "export",
     "use",
+    "plugin_scope",
 ]

@@ -39,6 +39,7 @@ class Context:
         self.exports: dict[str, Any] = {}
         self.always: PhonyTarget | None = None
         self.scopes: list[Scope] = []
+        self.track_scopes = True
 
         self.current_build_subdir = Path(".")
         self.current_src_subdir = bobfile.parent
@@ -132,6 +133,10 @@ class Context:
         self.configure_implicit_dependencies.add(bobfile)
 
         runpy.run_path(str(bobfile))
+
+        assert self.track_scopes, (
+            "An unclosed plugin scope was detected, this can cause a myriad of side-effects!"
+        )
 
         if validate_configs:
             for key in self.configs:

@@ -8,15 +8,25 @@ rule bob-1
 build build/from-included: bob-1 $root/tests/cases/utilities/hi
 build build/use-include-global: bob-1 build/from-included
 build build/.subbob-1-subbobbed/dummy: bob-1 $root/tests/cases/utilities/subbob-input $root/tests/cases/utilities/config-0
+rule bob-2
+  command = echo $variable > $out
+
 build build/subbob-0-built: bob-1 build/.subbob-1-subbobbed/dummy
+build build/should-have-fun-more: bob-2
+  variable = fun more
 build build/.subbob-2-subbobbed/dummy: bob-1 $root/tests/cases/utilities/subbob-input $root/tests/cases/utilities/config-1
+rule bob-3
+  command = echo $variable > $out
+
 build build/subbob-1-built: bob-1 build/.subbob-2-subbobbed/dummy
-rule configure-bob-2
+build build/should-have-fun-more: bob-3
+  variable = fun more
+rule configure-bob-4
   command = FORCE_COLOR=1 $bobbin configure --use-current-configs -f $bobfile
   description = CONFIGURE $out
   generator = 1
   pool = console
 
-build build/.bob/build.ninja: configure-bob-2 | $root/tests/cases/subprojects.bob $root/tests/cases/utilities/included.bob $root/tests/cases/utilities/subbobbed.bob build/.bob/configs.json
+build build/.bob/build.ninja: configure-bob-4 | $root/tests/cases/subprojects.bob $root/tests/cases/utilities/included.bob $root/tests/cases/utilities/subbobbed.bob build/.bob/configs.json
   bobbin = $root/.venv/bin/python -m bob
   bobfile = $root/tests/cases/subprojects.bob

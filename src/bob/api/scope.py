@@ -8,7 +8,8 @@ from bob.core.context import Context
 class Scope(abc.ABC):
     def __init__(self) -> None:
         context = Context.current()
-        context.scopes.append(self)
+        if context.track_scopes:
+            context.scopes.append(self)
 
     @abc.abstractmethod
     def _close(self) -> None: ...
@@ -111,3 +112,8 @@ class AttributeScope(Scope):
         self.original = {}
         self.changes = {}
         self.object = None
+
+
+def plugin_scope() -> Scope:
+    context = Context.current()
+    return AttributeScope(context, {"track_scopes": False})

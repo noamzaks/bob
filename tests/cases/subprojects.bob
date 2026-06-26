@@ -14,11 +14,11 @@ weird()
 # assert "built" not in globals() and "built" not in locals()
 
 for i in range(2):
+    sb = subbob(
+        "utilities/subbobbed.bob", r=r, configs={"subbob-config": f"config-{i}"}
+    )
     r.build(
         f"subbob-{i}-built",
-        inputs=[
-            subbob(
-                "utilities/subbobbed.bob", r=r, configs={"subbob-config": f"config-{i}"}
-            )["built"]
-        ],
+        inputs=[sb["built"]],
     )
+    sb["r"].build("should-have-fun-more")

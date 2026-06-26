@@ -13,3 +13,9 @@ src_in("inside")
 with src_in("not-dangeling"):
     pass
 build_in("dangeling")
+
+with plugin_scope():
+    r = Rule("echo $variable > $out")
+    r["variable"].set(["fun"])
+    r["variable"].add(["more"])
+    export(r=r)
