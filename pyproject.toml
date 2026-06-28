@@ -1,5 +1,5 @@
 [project]
-name = "bob"
+name = "bob-build"
 version = "0.1.0"
 description = "The ergonomic Ninja-based build system."
 readme = "README.md"
@@ -38,3 +38,6 @@ strict = true
 # TODO: https://github.com/pallets/click/issues/3502
 [tool.uv]
 override-dependencies = ["click==8.3.0"]
+
+[tool.uv.build-backend]
+module-name = "bob"
